@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum modality {
+  ONLINE
+  OFFLINE
+}
+
+model Course {
+  id                String             @id @default(uuid())
+  name              String
+  description       String
+  workload          Int
+  modality          modality           @default(ONLINE)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @default(now())
+  foundationCourses FoundationCourse[]
+}
+
+model Foundation {
+  id                String             @id @default(uuid())
+  name              String
+  document          String
+  manager           String
+  foundationCourses FoundationCourse[]
+}
+
+// Relacionamento entre Foundation e Course A:A
+model FoundationCourse {
+  id           String     @id @default(uuid())
+  foundationId String
+  courseId     String
+  foundation   Foundation @relation(fields: [foundationId], references: [id])
+  course       Course     @relation(fields: [courseId], references: [id])
+}
+
+enum roleUsers {
+  DEVELOPERMENT
+  ADM
+  FINANCER
+  SECRETARY
+  TEACHER
+  STUDENT
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  password      String
+  phone         String
+  role          roleUsers
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now())
+  refreshTokens RefreshToken[]
+  certificados  Certificado[]
+}
+
+//Autenticação.
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique // O hash do token ou o próprio token string
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Certificado {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  workload    Int
+  foundation  String
+  course      String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
