@@ -8,8 +8,9 @@ datasource db {
 }
 
 enum modality {
-  ONLINE
-  OFFLINE
+  ONLINE // online aulas ao vivo
+  PRESENTIAL // presencial
+  EAD // aulas gravadas
 }
 
 model Course {
@@ -17,10 +18,11 @@ model Course {
   name              String
   description       String
   workload          Int
-  modality          modality           @default(ONLINE)
+  modality          modality           @default(EAD)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @default(now())
   foundationCourses FoundationCourse[]
+  certificados  Certificado[]
 }
 
 model Foundation {
@@ -29,15 +31,17 @@ model Foundation {
   document          String
   manager           String
   foundationCourses FoundationCourse[]
+  certificados  Certificado[]
 }
 
 // Relacionamento entre Foundation e Course A:A
 model FoundationCourse {
   id           String     @id @default(uuid())
-  foundationId String
-  courseId     String
-  foundation   Foundation @relation(fields: [foundationId], references: [id])
-  course       Course     @relation(fields: [courseId], references: [id])
+  foundation_id String
+  course_id     String
+
+  foundation   Foundation @relation(fields: [foundation_id], references: [id])
+  course       Course     @relation(fields: [course_id], references: [id])
 }
 
 enum roleUsers {
@@ -68,8 +72,8 @@ model RefreshToken {
   token     String   @unique // O hash do token ou o próprio token string
   expiresAt DateTime
   createdAt DateTime @default(now())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user_id    String
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Certificado {
@@ -77,10 +81,13 @@ model Certificado {
   title       String
   description String
   workload    Int
-  foundation  String
-  course      String
-  userId      String
-  user        User   @relation(fields: [userId], references: [id])
+  foundation_id  String
+  course_id      String
+  user_id      String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+
+  foundation  Foundation @relation(fields: [foundation_id], references: [id])
+  course      Course     @relation(fields: [course_id], references: [id])
+  user        User   @relation(fields: [user_id], references: [id])
 }
