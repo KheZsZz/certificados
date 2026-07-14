@@ -45,7 +45,11 @@ export const authService = {
     await prisma.refreshToken.create({
       data: {
         token: refreshTokenString,
-        userId: user.id,
+        user: {
+        connect: {
+          id: user.id // Aqui vai a variável que guarda o ID do usuário
+        }
+    },
         expiresAt
       }
     })
@@ -95,7 +99,7 @@ export const authService = {
     await prisma.refreshToken.create({
       data: {
         token: newRefreshToken,
-        userId: tokenRecord.user.id,
+        user_id: tokenRecord.user.id,
         expiresAt: newExpiresAt
       }
     })
