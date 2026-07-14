@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import 'dotenv/config'
 // modules
 import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
@@ -50,9 +51,13 @@ app.register(cookie, {
   parseOptions: {}
 })
 
-app.register(appRoutes)
+app.register(appRoutes, { prefix: '/api' });
 
 
-app.listen({ port: 3000 }, (err) => {
-  console.log('Server is running on port: 3000')
-});
+app.addHook('onRequest', async (request, reply) => {
+  console.log(`➡️ [${request.method}] ${request.url}`)
+})
+
+app.listen({ port: 3000, host: '0.0.0.0' }).then(() => {
+  console.log('🚀 HTTP Server Running!')
+})
